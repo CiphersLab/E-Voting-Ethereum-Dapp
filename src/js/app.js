@@ -60,6 +60,9 @@ App = {
       var candidatesResults = $("#candidatesResults");
       candidatesResults.empty();
     
+      var candidatesSelect = $("#candidatesSelect");
+      candidatesSelect.empty();
+    
       for (var i = 1; i <= candidatesCount; i++) {
         electionInstance.candidates(i).then(function(candidate) {
           var id = candidate[0];
@@ -75,14 +78,35 @@ App = {
           candidatesSelect.append(candidateOption);
         });
       }
-
+      return electionInstance.voters(App.account);
+      
+    }).then(function(hasVoted){
+      //Do Not allow a user to vote
+      if(hasVoted){
+      $('form').hide();
+      }
       loader.hide();
       content.show();
-    }).catch(function(error){
+    })
+    .catch(function(error){
       console.warn(error)
     })
   },
 
+  castVote: function() {
+    var candidateId = $('#candidatesSelect').val();
+    App.contracts.Election.deployed().then(function(i){
+      return i.vote(candidateId, {from: App.account});
+    }).then(function(result){
+      //Wait for votes to update
+      $("#content").hide();
+      $("#loader").show();
+
+    })
+    .catch(function(error){
+      console.log(error)
+    })
+  },
   bindEvents: function() {
     $(document).on('click', '.btn-adopt', App.handleAdopt);
   },
