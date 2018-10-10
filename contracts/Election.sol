@@ -23,6 +23,11 @@ contract Election {
     //Store  Accounts That have voted
     mapping (address => bool) public voters;
 
+    //voted event
+    event votedEvent (
+        uint indexed _candidateId
+    );
+
 
     function Election () public {
         //candidate = "candidate1"; 
@@ -48,6 +53,9 @@ contract Election {
 
         //update candidate vote count 
         candidates[_candidateId].voteCount ++;
+    
+        //tigger voted event
+        votedEvent(_candidateId);
     }
 
 }
